@@ -85,7 +85,7 @@ class REST(object):
     
     def _one_request(self,method:str, url:str,headers:dict,retry:int):
         retry_codes = self._retry_codes
-        resp = self._session.request(method,url,headers)
+        resp = self._session.request(method=method,url=url,headers=headers)
         try:
             resp.raise_for_status()
         except HTTPError as http_error:
@@ -97,11 +97,13 @@ class REST(object):
                     raise APIError(error,http_error)
             else:
                 raise
-            if resp.text!='':
-                return resp.json()
+        if resp.text!='':
+            return resp.json()
         return None
+    
     def get(self,path,headers=None):
         return self._request('GET',path,headers)
+    
     def get_account(self) -> Account:
         resp = self.get('/account')
         return Account(resp)
