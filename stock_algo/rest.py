@@ -65,6 +65,42 @@ class REST(object):
         url:str = f'{base_url}/{version}/{path}'
         headers:dict= {'APCA-API-KEY-ID':self._api_key,'APCA-API-SECRET-KEY':self._secret_key}
         retry = self._retry
+        if retry < 0:
+            retry = 0
+        while retry>=0:
+            try:
+                return self._one_request(method,url,headers,retry)
+            except RetryException:
+                retry_wait = self._retry_wait
+                logger.warning(f'sleep {retry_wait} seconds and retrying {url} {retry} more times')
+                time.sleep(retry_wait)
+                retry-=1
+                continue
+    
+    def _one_request(self,method:str, url:str,headers:dict,retry:int):
+        retry_codes = self._retry_codes
+        resp = self._session.request(method,url,headers)
+        try:
+            resp.raise_for_status()
+        except HTTPError as http_error:
+            if resp.status_code in retry_codes and retry > 0:
+                raise RetryException()
+            if 'code' in resp.text:
+                error = resp.json()
+                if 'code' in error:
+                    raise APIError(error,http_error)
+            else:
+                raise
+            if resp.text!='':
+                return resp.json()
+        return None
+    def get(self,path,headers):
+        return self._request('GET',path,headers)
+    def get_account(self) -> Account:
+        resp = self.get('/account')
+        return Account(resp)
+            
+                    
 
          
     
