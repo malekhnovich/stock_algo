@@ -1,8 +1,9 @@
 import logging
 import os
+import requests
 from requests.exceptions import HTTPError
 import time
-from config import base_url,api_key,secret_key
+from .entity import Account
 
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,9 @@ class APIError(Exception):
 
 class REST(object):
     def __init__(self,
-                api_key:str=api_key,
-                secret_key:str=secret_key,
-                base_url:str=base_url,
+                api_key:str,
+                secret_key:str,
+                base_url:str,
                 api_version:str='v2'
                 ):
         self._api_key = api_key
@@ -54,15 +55,20 @@ class REST(object):
         self._retry_wait = int(os.environ.get('APCA_RETRY_WAIT', 3))
         self._retry_codes = [int(o) for o in os.environ.get(
             'APCA_RETRY_CODES', '429,504').split(',')]
+    def __str__(self):
+        return f'API_KEY is {self._api_key} and SECRET_KEY is {self._secret_key}'
+    def __repr__(self):
+        return f'REST(API_KEY={self._api_key},SECRET_KEY={self._secret_key},BASE_URL={self._base_url})'
+    
 
     def _request(self,
                 method,
                 path,
+                base_url:str,
                 data=None,
-                base_url:str=base_url,
                 api_version:str='v2'):
         base_url = base_url or self._base_url
-        url:str = f'{base_url}/{version}/{path}'
+        url:str = f'{base_url}/{api_version}{path}'
         headers:dict= {'APCA-API-KEY-ID':self._api_key,'APCA-API-SECRET-KEY':self._secret_key}
         retry = self._retry
         if retry < 0:
@@ -94,7 +100,7 @@ class REST(object):
             if resp.text!='':
                 return resp.json()
         return None
-    def get(self,path,headers):
+    def get(self,path,headers=None):
         return self._request('GET',path,headers)
     def get_account(self) -> Account:
         resp = self.get('/account')
