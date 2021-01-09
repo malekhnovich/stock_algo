@@ -41,3 +41,15 @@ class Account(Entity):
     https://alpaca.markets/docs/api-documentation/api-v2/account/
     """
     pass
+
+class Orders(Entity):
+    """
+    Orders properties:
+    https://alpaca.markets/docs/api-documentation/api-v2/orders/
+    """
+    def __init__(self,raw):
+        super().__init__(raw)
+        try:
+            self.legs = [Order[o] for o in self.legs]
+        except Exception:
+            pass

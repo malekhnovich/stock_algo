@@ -3,7 +3,7 @@ import os
 import requests
 from requests.exceptions import HTTPError
 import time
-from .entity import Account
+from .entity import Account,Orders
 
 
 logger = logging.getLogger(__name__)
@@ -107,6 +107,35 @@ class REST(object):
     def get_account(self) -> Account:
         resp = self.get('/account')
         return Account(resp)
+
+
+    def get_orders(self,
+    status: str = None,
+    limit : str = None,
+    after : str = None,
+    until : str = None,
+    direction : str = None,
+    nested : str = None,
+    symbols: str = None
+    ) -> Orders:
+        if params is None:
+            params = {}
+        if status is None:
+            param['status'] = status
+        if limit is not None:
+            params['limit'] = limit
+        if after is not None:
+            params['after'] = after
+        if until is not None:
+            params['until'] = until
+        if direction is not None:
+            params['direction'] = direction
+        if nested is not None:
+            params['nested']  = nested
+        if symbols is not None:
+            params['symbol'] = symbols
+        resp = self.get('/orders',params)
+        return [Order(o) for o in resp]
             
                     
 

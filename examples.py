@@ -14,5 +14,7 @@ api = tradeapi.REST(api_key = api_key,
                     secret_key = secret_key,
                     base_url  =base_url)
 # print(api.__str__())
-account = api.get_account()
-print(account.status)
+# account = api.get_account()
+# print(account.status)
+orders = api.get_orders()
+print(orders)
