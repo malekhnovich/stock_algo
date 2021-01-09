@@ -3,7 +3,7 @@ import os
 import requests
 from requests.exceptions import HTTPError
 import time
-from .entity import Account,Orders
+from .entity import Account,Order
 
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class REST(object):
                 method,
                 path,
                 base_url:str,
-                data=None,
+                params=None,
                 api_version:str='v2'):
         base_url = base_url or self._base_url
         url:str = f'{base_url}/{api_version}{path}'
@@ -75,7 +75,7 @@ class REST(object):
             retry = 0
         while retry>=0:
             try:
-                return self._one_request(method,url,headers,retry)
+                return self._one_request(method,url,headers,params,retry)
             except RetryException:
                 retry_wait = self._retry_wait
                 logger.warning(f'sleep {retry_wait} seconds and retrying {url} {retry} more times')
@@ -83,9 +83,9 @@ class REST(object):
                 retry-=1
                 continue
     
-    def _one_request(self,method:str, url:str,headers:dict,retry:int):
+    def _one_request(self,method:str, url:str,headers:dict,params:dict,retry:int):
         retry_codes = self._retry_codes
-        resp = self._session.request(method=method,url=url,headers=headers)
+        resp = self._session.request(method=method,url=url,params =params,headers=headers)
         try:
             resp.raise_for_status()
         except HTTPError as http_error:
@@ -101,8 +101,8 @@ class REST(object):
             return resp.json()
         return None
     
-    def get(self,path,headers=None):
-        return self._request('GET',path,headers)
+    def get(self,path,headers=None,params = None):
+        return self._request('GET',path,headers,params)
     
     def get_account(self) -> Account:
         resp = self.get('/account')
@@ -116,12 +116,13 @@ class REST(object):
     until : str = None,
     direction : str = None,
     nested : str = None,
-    symbols: str = None
-    ) -> Orders:
+    symbols: str = None,
+    params: dict = None
+    ) -> Order:
         if params is None:
             params = {}
         if status is None:
-            param['status'] = status
+            params['status'] = status
         if limit is not None:
             params['limit'] = limit
         if after is not None:
@@ -134,7 +135,7 @@ class REST(object):
             params['nested']  = nested
         if symbols is not None:
             params['symbol'] = symbols
-        resp = self.get('/orders',params)
+        resp = self.get('/orders',params=params)
         return [Order(o) for o in resp]
             
                     

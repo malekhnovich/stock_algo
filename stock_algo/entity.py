@@ -42,7 +42,7 @@ class Account(Entity):
     """
     pass
 
-class Orders(Entity):
+class Order(Entity):
     """
     Orders properties:
     https://alpaca.markets/docs/api-documentation/api-v2/orders/
