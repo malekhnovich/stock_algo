@@ -137,6 +137,46 @@ class REST(object):
             params['symbol'] = symbols
         resp = self.get('/orders',params=params)
         return [Order(o) for o in resp]
+    def fill_order(self,
+    symbol: str,
+    qty: int,
+    side: str ,
+    type:str,
+    time_in_force:str,
+    limit_price: str = None,
+    stop_price: str = None,
+    trail_price: str = None,
+    trail_percent: str = None,
+    extended_hours: bool = None,
+    order_class: str = None,
+    take_profit : dict = None,
+    stop_loss: dict  = None
+     ) -> Order:
+        if limit_price is not None:
+            params['limit_price'] = FLOAT(limit_price)
+        if stop_price is not None:
+            params['stop_price'] = FLOAT(stop_price)
+        if trail_price is not None:
+            params['trail_price'] = FLOAT(trail_price)
+        if trail_percent is not None:
+            params['trail_percent']  = FLOAT(trail_percent)
+        if extended_hours is not None:
+            params['extended_hours'] = FLOAT(extended_hours)
+        if order_class is not None:
+            params['order_class'] =  order_class
+        if stop_loss is not None:
+            if 'limit_price' in stop_loss:
+                stop_loss['limit_price'] = FLOAT(stop_loss['limit_price'])
+            if 'stop_price' in stop_loss:
+                stop_loss['stop_price'] = FLOAT(stop_loss['stop_price'])
+            params['stop_loss']= stop_loss
+        if trail_price is not None:
+            params['trail_price'] = trail_price
+        if trail_percent is not None:
+            params['trail_percent'] = trail_percent
+        resp = self.post('/orders',params=params)
+        
+
             
                     
 
