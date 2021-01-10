@@ -181,16 +181,16 @@ class REST(object):
             'type':             type,
             'time_in_force':    time_in_force
         }
-        # if limit_price is not None:
-        #     params['limit_price'] = FLOAT(limit_price)
-        # if stop_price is not None:
-        #     params['stop_price'] = FLOAT(stop_price)
-        # if trail_price is not None:
-        #     params['trail_price'] = FLOAT(trail_price)
-        # if trail_percent is not None:
-        #     params['trail_percent']  = FLOAT(trail_percent)
-        # if extended_hours is not None:
-        #     params['extended_hours'] = FLOAT(extended_hours)
+        if limit_price is not None:
+            params['limit_price'] = FLOAT(limit_price)
+        if stop_price is not None:
+            params['stop_price'] = FLOAT(stop_price)
+        if trail_price is not None:
+            params['trail_price'] = FLOAT(trail_price)
+        if trail_percent is not None:
+            params['trail_percent']  = FLOAT(trail_percent)
+        if extended_hours is not None:
+            params['extended_hours'] = FLOAT(extended_hours)
         if order_class is not None:
             params['order_class'] =  order_class
         if stop_loss is not None:
