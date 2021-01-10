@@ -125,6 +125,9 @@ class REST(object):
     def post(self,path,data=None):
         return self._request('POST',path,data)
     
+    def patch(self,path,data=None):
+        return self._request('PATCH',path,data)
+    
     def get_account(self) -> Account:
         resp = self.get('/account')
         return Account(resp)
@@ -207,8 +210,9 @@ class REST(object):
         resp = self.post('/orders', params)
         return Order(resp)
 
-    def get_specific_order(self,order_id:str)->Order:
-        params = {'order_id':order_id}
+    def get_specific_order(self,order_id:str, nested: bool = None)->Order:
+        if nested is not None:
+            params['nested'] = nested
         resp = self.get(f'/orders/{order_id}', params)
         return Order(resp)
     
@@ -216,6 +220,34 @@ class REST(object):
         params = {'client_order_id':client_order_id}
         resp  =self.get(f'/orders:by_client_order_id',params)
         return Order(resp)
+
+    def replace_order(
+    self,
+    order_id:str,
+    qty:str = None,
+    time_in_force:str = None,
+    limit_price:str = None,
+    stop_price: str = None,
+    trail: str = None,
+    client_order_id:str = None) -> Order:
+    params = {}
+    if qty is not None:
+        params['qty'] = qty
+    if time_in_force is not None:
+        params['time_in_force'] = time_in_force
+    if limit_price is not None:
+        params['limit_price'] = FLOAT(limit_price)
+    if stop_price is not None:
+        params['stop_price'] = FLOAT(stop_price)
+    if trail is not None:
+        params['trail'] = trail
+    if client_order_id is not None:
+        params['client_order_id'] = client_order_id
+    resp  = self.patch(f'/orders/{order_id}',params)
+    return Order(resp)
+
+
+
     
 
         
