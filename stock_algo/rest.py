@@ -4,6 +4,7 @@ import requests
 from requests.exceptions import HTTPError
 import time
 from .entity import Account,Order
+from .utility import FLOAT
 
 
 logger = logging.getLogger(__name__)
@@ -205,6 +206,11 @@ class REST(object):
 
         resp = self.post('/orders', params)
         return Order(resp)
+    def get_specific_order(self,order_id:str)->Order
+        params = {'order_id':order_id}
+        resp = self.get(f'/orders/{order_id}', params)
+        return Order(resp)
+
         
 
             
