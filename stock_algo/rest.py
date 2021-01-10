@@ -206,10 +206,17 @@ class REST(object):
 
         resp = self.post('/orders', params)
         return Order(resp)
-    def get_specific_order(self,order_id:str)->Order
+
+    def get_specific_order(self,order_id:str)->Order:
         params = {'order_id':order_id}
         resp = self.get(f'/orders/{order_id}', params)
         return Order(resp)
+    
+    def get_order_by_client_order(self,client_order_id:str)->Order:
+        params = {'client_order_id':client_order_id}
+        resp  =self.get(f'/orders:by_client_order_id',params)
+        return Order(resp)
+    
 
         
 
