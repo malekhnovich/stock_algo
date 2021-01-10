@@ -3,7 +3,7 @@ import os
 import requests
 from requests.exceptions import HTTPError
 import time
-from .entity import Account,Order,Position
+from .entity import Account,Order,Position,Asset
 from .utility import FLOAT
 
 
@@ -252,11 +252,32 @@ class REST(object):
     def cancel_order(self,order_id:str) -> None:
         resp = self.delete(f'/orders/{order_id}')
         return Order(resp)
+    
     def cancel_all_orders(self) -> None:
         self.delete('/orders')
-    def list_positions(self) -> Positions:
+
+    def list_positions(self) -> Position:
         resp = self.get('/positions')
         return [Position[o] for o in resp]
+    
+    def get_position(self, symbol: str) -> Position:
+        resp  =self.get(f'/positions/{symbol}')
+        return Position(resp)
+    
+    def close_position(self, symbol: str) -> Order:
+        resp = self.delete(f'/positions/{symbol}')
+    
+    def get_assets(self,status:str = None,asset_class:str = None) -> Assets:
+        params = {'status':status, 'asset_class':asset_class}
+        resp = self.get(f'/assets',params)
+        return [Asset(o) for o in resp]
+    
+    def get_assets_by_id(self,id:str)-> Assets:
+        resp  = self.get(f'/assets/:{id}')
+        return [Asset(o) for o in resp]
+        
+    def get_asset(self,symbol:str)-> Asset
+        resp = self.get(f'/assets/{symbol}')
 
 
 

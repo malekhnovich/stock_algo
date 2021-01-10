@@ -60,3 +60,10 @@ class Position(Entity):
 https://alpaca.markets/docs/api-documentation/api-v2/positions/#position-entity
     """
     pass
+
+class Asset(Entity):
+    """
+    Entity properties:
+    https://alpaca.markets/docs/api-documentation/api-v2/assets/#asset-entity
+    """
+    pass
