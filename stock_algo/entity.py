@@ -53,3 +53,10 @@ class Order(Entity):
             self.legs = [Order[o] for o in self.legs]
         except Exception:
             pass
+
+class Position(Entity):
+    """
+    Entity properties:
+https://alpaca.markets/docs/api-documentation/api-v2/positions/#position-entity
+    """
+    pass
