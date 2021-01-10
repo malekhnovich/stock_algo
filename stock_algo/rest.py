@@ -64,18 +64,31 @@ class REST(object):
     def _request(self,
                 method,
                 path,
-                base_url:str,
-                params=None,
+                data = None,
+                base_url:str = None,
                 api_version:str='v2'):
         base_url = base_url or self._base_url
         url:str = f'{base_url}/{api_version}{path}'
         headers:dict= {'APCA-API-KEY-ID':self._api_key,'APCA-API-SECRET-KEY':self._secret_key}
         retry = self._retry
+        opts = {
+            'headers'           :          headers,
+            'allow_redirects'   :          False
+        }
+        if method.upper() == 'GET':
+            opts['params'] = data
+        else:
+            opts['json']  = data
+        
         if retry < 0:
             retry = 0
         while retry>=0:
             try:
-                return self._one_request(method,url,headers,params,retry)
+                return self._one_request(
+                method,
+                url,
+                opts,
+                retry)
             except RetryException:
                 retry_wait = self._retry_wait
                 logger.warning(f'sleep {retry_wait} seconds and retrying {url} {retry} more times')
@@ -83,9 +96,13 @@ class REST(object):
                 retry-=1
                 continue
     
-    def _one_request(self,method:str, url:str,headers:dict,params:dict,retry:int):
+    def _one_request(self,method:str, url:str,opts:dict,retry:int):
         retry_codes = self._retry_codes
-        resp = self._session.request(method=method,url=url,params =params,headers=headers)
+        resp = self._session.request(
+            method,
+            url,
+            **opts
+            )
         try:
             resp.raise_for_status()
         except HTTPError as http_error:
@@ -101,8 +118,11 @@ class REST(object):
             return resp.json()
         return None
     
-    def get(self,path,headers=None,params = None):
-        return self._request('GET',path,headers,params)
+    def get(self,path,data = None):
+        return self._request('GET',path,data)
+
+    def post(self,path,data=None):
+        return self._request('POST',path,data)
     
     def get_account(self) -> Account:
         resp = self.get('/account')
@@ -135,8 +155,9 @@ class REST(object):
             params['nested']  = nested
         if symbols is not None:
             params['symbol'] = symbols
-        resp = self.get('/orders',params=params)
+        resp = self.get('/orders',params)
         return [Order(o) for o in resp]
+    
     def fill_order(self,
     symbol: str,
     qty: int,
@@ -152,16 +173,23 @@ class REST(object):
     take_profit : dict = None,
     stop_loss: dict  = None
      ) -> Order:
-        if limit_price is not None:
-            params['limit_price'] = FLOAT(limit_price)
-        if stop_price is not None:
-            params['stop_price'] = FLOAT(stop_price)
-        if trail_price is not None:
-            params['trail_price'] = FLOAT(trail_price)
-        if trail_percent is not None:
-            params['trail_percent']  = FLOAT(trail_percent)
-        if extended_hours is not None:
-            params['extended_hours'] = FLOAT(extended_hours)
+        params = {
+            'symbol':           symbol,
+            'qty':              qty,
+            'side':             side,
+            'type':             type,
+            'time_in_force':    time_in_force
+        }
+        # if limit_price is not None:
+        #     params['limit_price'] = FLOAT(limit_price)
+        # if stop_price is not None:
+        #     params['stop_price'] = FLOAT(stop_price)
+        # if trail_price is not None:
+        #     params['trail_price'] = FLOAT(trail_price)
+        # if trail_percent is not None:
+        #     params['trail_percent']  = FLOAT(trail_percent)
+        # if extended_hours is not None:
+        #     params['extended_hours'] = FLOAT(extended_hours)
         if order_class is not None:
             params['order_class'] =  order_class
         if stop_loss is not None:
@@ -174,7 +202,9 @@ class REST(object):
             params['trail_price'] = trail_price
         if trail_percent is not None:
             params['trail_percent'] = trail_percent
-        resp = self.post('/orders',params=params)
+
+        resp = self.post('/orders', params)
+        return Order(resp)
         
 
             
