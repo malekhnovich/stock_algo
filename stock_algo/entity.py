@@ -67,3 +67,19 @@ class Asset(Entity):
     https://alpaca.markets/docs/api-documentation/api-v2/assets/#asset-entity
     """
     pass
+
+class Bar(Entity):
+    """
+    Entity properties:
+    https://alpaca.markets/docs/api-documentation/api-v2/market-data/bars/
+    #bars-entity
+    """
+    def __getattr__(self,key):
+        if key =='t':
+            val = self._raw[key[0]]
+            return pd.Timestamp(val,unit='s',tz='NY')
+        return super().__getattr__(key)
+class Bars(list):
+    super().__init__([Bar(o) for o in raw])
+    self._raw=raw
+

@@ -25,5 +25,6 @@ api = tradeapi.REST(api_key = api_key,
 # filled_order = api.fill_order('AAPL',1,'buy','market','gtc')
 # print(filled_order)
 # api.cancel_all_orders()
-positions = api.list_positions()
-print(positions)
+# positions = api.list_positions()
+# print(positions)
+api.get_barset(symbols = 'AAPL',timeframe = '5Min')

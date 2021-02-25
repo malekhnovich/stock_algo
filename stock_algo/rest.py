@@ -9,6 +9,8 @@ from .utility import FLOAT
 
 logger = logging.getLogger(__name__)
 
+Assets = [Asset]
+
 class RetryException(Exception):
     pass
 class APIError(Exception):
@@ -130,6 +132,9 @@ class REST(object):
 
     def delete(self,path,data=None):
         return self._request('DELETE',path,data)
+    
+    def data_get(self,path,data=None):
+        return self._request('GET',path,data,api_version='v1')
     
     def get_account(self) -> Account:
         resp = self.get('/account')
@@ -275,9 +280,35 @@ class REST(object):
     def get_assets_by_id(self,id:str)-> Assets:
         resp  = self.get(f'/assets/:{id}')
         return [Asset(o) for o in resp]
-        
-    def get_asset(self,symbol:str)-> Asset
+
+    def get_asset(self,symbol:str)-> Asset:
         resp = self.get(f'/assets/{symbol}')
+
+    def get_barset(self,
+    symbols:str,
+    timeframe:str,
+    limit: int = None,
+    start: str = None,
+    end: str = None,
+    after: str = None,
+    until: str = None) -> Barset:
+        if not isinstance(symbols,str):
+            symbols = ','.join(symbols)
+        params = {
+            'symbols':symbols,
+        }
+        if limit is not None:
+            params['limit'] = limit
+        if start is not None:
+            params['start'] = start
+        if end is not None:
+            params['end'] = end
+        if after is not None:
+            params['after'] = after
+        if until is not None:
+            params['until'] = until
+        resp = self.data_get(f'/bars/{timeframe}',params)
+
 
 
 
